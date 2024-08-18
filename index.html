@@ -80,44 +80,30 @@
             analysisInterval = setInterval(() => fetchData(link), 5000); // Continua capturando a cada 5 segundos
         }
 
-        async function fetchData(link) {
-            try {
-                const response = await fetch(link);
-                
-                if (!response.ok) {
-                    throw new Error(`Erro na rede: ${response.statusText}`);
-                }
-                
-                const data = await response.json();
-                
-                // Exemplo de dados: { "currentMultiplier": 1.23 }
-                const multiplier = data.currentMultiplier; 
+        function fetchData(link) {
+            // Simulação de captura de dados em tempo real
+            // Na prática, isso pode ser feito via fetch, WebSocket, ou outra forma de coleta de dados
+            const randomValue = (Math.random() * 10).toFixed(2);
 
-                if (isNaN(multiplier)) {
-                    throw new Error('O valor retornado não é um número.');
-                }
+            // Armazena o valor capturado no array histórico
+            historicalData.push(parseFloat(randomValue));
+            updateHistory(randomValue);
 
-                // Armazena o valor capturado no array histórico
-                historicalData.push(parseFloat(multiplier));
-                updateHistory(multiplier);
-
-                // Análise de padrões e previsão
-                const nextPrediction = analyzePatterns(historicalData);
-                document.getElementById('analysis').innerText = `Multiplicador atual: ${multiplier}\nPróximo valor previsto: ${nextPrediction}`;
-            } catch (error) {
-                console.error('Erro ao buscar dados:', error);
-                document.getElementById('analysis').innerText = 'Erro ao buscar dados.';
-            }
+            // Análise de padrões e previsão
+            const nextPrediction = analyzePatterns(historicalData);
+            document.getElementById('analysis').innerText = `Próximo valor previsto: ${nextPrediction}`;
         }
 
         function analyzePatterns(data) {
+            // Simulação de análise de padrões
+            // Substitua isso por algoritmos reais de análise, como médias móveis, regressão linear, etc.
             if (data.length < 2) return 'Aguardando mais dados...';
 
+            // Exemplo simples: usar a média dos últimos valores como previsão
             const recentData = data.slice(-3); // Pegando os últimos 3 valores
             const sum = recentData.reduce((acc, val) => acc + val, 0);
             const average = (sum / recentData.length).toFixed(2);
 
-            // Previsão simples como média móvel dos últimos valores
             return average;
         }
 
@@ -130,4 +116,3 @@
     </script>
 </body>
 </html>
-
