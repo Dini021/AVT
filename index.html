@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Padrões Aviator em Tempo Real</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #analysis {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #007bff;
+        }
+
+        #history {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Análise de Padrões Aviator em Tempo Real</h1>
+    <p>Insira o link da aba do jogo Aviator abaixo:</p>
+    <input type="text" id="gameLink" placeholder="Cole o link aqui...">
+    <button onclick="startAnalysis()">Iniciar Análise</button>
+
+    <div id="analysis">
+        Aguardando link para iniciar a análise...
+    </div>
+    <div id="history">
+        Histórico de Padrões:<br>
+        <ul id="patternHistory"></ul>
+    </div>
+
+    <script>
+        let analysisInterval;
+        let historicalData = []; // Array para armazenar os dados históricos
+
+        function startAnalysis() {
+            const link = document.getElementById('gameLink').value;
+
+            if (!link) {
+                alert('Por favor, insira um link válido!');
+                return;
+            }
+
+            document.getElementById('analysis').innerText = 'Analisando padrões em tempo real...';
+            fetchData(link); // Captura inicial dos dados
+            analysisInterval = setInterval(() => fetchData(link), 5000); // Continua capturando a cada 5 segundos
+        }
+
+        async function fetchData(link) {
+            try {
+                const response = await fetch(link);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro na rede: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Exemplo de dados: { "currentMultiplier": 1.23 }
+                const multiplier = data.currentMultiplier; 
+
+                if (isNaN(multiplier)) {
+                    throw new Error('O valor retornado não é um número.');
+                }
+
+                // Armazena o valor capturado no array histórico
+                historicalData.push(parseFloat(multiplier));
+                updateHistory(multiplier);
+
+                // Análise de padrões e previsão
+                const nextPrediction = analyzePatterns(historicalData);
+                document.getElementById('analysis').innerText = `Multiplicador atual: ${multiplier}\nPróximo valor previsto: ${nextPrediction}`;
+            } catch (error) {
+                console.error('Erro ao buscar dados:', error);
+                document.getElementById('analysis').innerText = 'Erro ao buscar dados.';
+            }
+        }
+
+        function analyzePatterns(data) {
+            if (data.length < 2) return 'Aguardando mais dados...';
+
+            const recentData = data.slice(-3); // Pegando os últimos 3 valores
+            const sum = recentData.reduce((acc, val) => acc + val, 0);
+            const average = (sum / recentData.length).toFixed(2);
+
+            // Previsão simples como média móvel dos últimos valores
+            return average;
+        }
+
+        function updateHistory(value) {
+            const patternHistory = document.getElementById('patternHistory');
+            const listItem = document.createElement('li');
+            listItem.textContent = `Valor capturado: ${value}`;
+            patternHistory.appendChild(listItem);
+        }
+    </script>
+</body>
+</html>
+
